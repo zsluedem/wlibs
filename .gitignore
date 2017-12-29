@@ -1,4 +1,10 @@
 # Created by .ignore support plugin (hsz.mobi)
 fab_script/install_shadowsocks/config.yml
+fab_script/deploy_etcd_cluster/etcd-v3.3.0-rc.0-linux-amd64.tar.gz
+fab_script/deploy_etcd_cluster/config.yml
+fab_script/install_python3/config.yml
+fab_script/install_python3/Python-3.6.4.tgz
 .idea
+.DS_Store
+*.DS_Store
 *.pyc

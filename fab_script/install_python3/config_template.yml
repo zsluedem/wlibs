@@ -1,0 +1,4 @@
+host:
+  - apple@8.8.8.8
+pwd: apple
+install_path: /usr/local/python3.6
