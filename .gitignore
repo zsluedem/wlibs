@@ -1,3 +1,4 @@
 # Created by .ignore support plugin (hsz.mobi)
-fab_script/install_shadowsocks/config.py
+fab_script/install_shadowsocks/config.yml
 .idea
+*.pyc

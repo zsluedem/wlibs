@@ -6,12 +6,17 @@ from fabric.api import env, run
 from fabric.context_managers import cd
 from fabric.contrib.files import append, exists
 from fabric.operations import sudo
+from yaml import load
 
-from .config import *
+BASE_DIR = os.path.split(os.path.abspath(__file__))[0]
 
-env.hosts = HOSTS
+with open('config.yml') as f:
+    config = load(f)
 
-env.password = PWD
+print config
+env.hosts = config.get('HOST')
+
+env.password = config.get('PWD')
 
 privoxy_get_url = "http://www.privoxy.org/sf-download-mirror/Sources/3.0.26%20%28stable%29/privoxy-3.0.26-stable-src.tar.gz"
 
@@ -57,7 +62,9 @@ forward 172.29.*.*/ .
 forward 172.30.*.*/ .
 forward 172.31.*.*/ .
 """
-privoxy_config = privoxy_config % (privoxy_install_path, privoxy_install_path, privoxy_port, shadowsocks_local_port)
+privoxy_config = privoxy_config % (
+config.get('privoxy_install_path'), config.get('privoxy_install_path'), config.get('privoxy_port'),
+config.get('shadowsocks_local_port'))
 
 
 def install_shadowsocks():
@@ -65,31 +72,31 @@ def install_shadowsocks():
     if exists('/etc/shadowsocks.json', True):
         sudo('rm /etc/shadowsocks.json')
     with cd('/etc'):
-        append('shadowsocks.json', json.dumps(shadowsocks_config), use_sudo=True)
+        append('shadowsocks.json', json.dumps(config.get('shadowsocks_config')), use_sudo=True)
 
 
 def start_shadowsocks():
-    with cd(home_dir):
+    with cd(config.get('home_dir')):
         sudo("sslocal -c /etc/shadowsocks.json -d start")
         # run("screen -d -m sleep 60")
 
 
 def install_privoxy():
-    with cd(home_dir):
+    with cd(config.get('home_dir')):
         run('wget {}'.format(privoxy_get_url))
         run('tar -zxvf privoxy-3.0.26-stable-src.tar.gz')
-    with cd(os.path.join(home_dir, 'privoxy-3.0.26-stable')):
+    with cd(os.path.join(config.get('home_dir'), 'privoxy-3.0.26-stable')):
         run('autoheader && autoconf')
-        run('./configure --prefix={}'.format(privoxy_install_path))
+        run('./configure --prefix={}'.format(config.get('privoxy_install_path')))
         run('make')
         sudo('useradd privoxy')
         sudo('make install')
 
 
 def start_privoxy():
-    privoxy_config_path = os.path.join(privoxy_install_path, 'config')
+    privoxy_config_path = os.path.join(config.get('privoxy_install_path'), 'config')
     sudo('echo "{}" > {}'.format(privoxy_config, privoxy_config_path))
-    with cd(privoxy_install_path):
+    with cd(config.get('privoxy_install_path')):
         sudo('./sbin/privoxy --user privoxy ./config')
 
 
